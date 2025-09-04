@@ -1,0 +1,11 @@
+__pycache__/
+.pytest_cache/
+.DS_Store
+.env
+index/
+.venv/
+.streamlit/
+*.sqlite3
+*.log
+*.tmp
+*.cache
