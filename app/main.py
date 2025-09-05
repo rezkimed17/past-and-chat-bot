@@ -29,7 +29,7 @@ def main() -> None:
     _env_or_die()
     index_dir = os.getenv("INDEX_DIR", "index/faiss_index")
     top_k = int(os.getenv("TOP_K", "4"))
-    threshold = float(os.getenv("RELEVANCE_THRESHOLD", "0.6"))
+    threshold = float(os.getenv("RELEVANCE_THRESHOLD", "0.4"))
 
     vs = _load_vs_or_die(index_dir)
     retriever = vs.as_retriever(search_kwargs={"k": top_k})
@@ -54,4 +54,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

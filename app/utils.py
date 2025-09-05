@@ -54,15 +54,30 @@ def format_citation(doc: Document) -> str:
 
 
 def best_supported(docs_with_scores: Iterable[Tuple[Document, float]], threshold: float) -> List[ScoredDoc]:
-    """Return docs meeting the relevance threshold.
+    """Return docs meeting the relevance threshold with robust normalization.
 
-    Assumes scores are in [0,1] where higher is more relevant.
+    - If scores already in [0,1], use them as-is.
+    - If scores in [-1,1], map via (s+1)/2.
+    - Otherwise, normalize by rank (top=1.0, last=0.0).
     """
-    kept: List[ScoredDoc] = []
-    for doc, score in docs_with_scores:
-        if score >= threshold:
-            kept.append(ScoredDoc(doc=doc, score=score))
-    return kept
+    pairs = list(docs_with_scores)
+    if not pairs:
+        return []
+    scores = [s for _, s in pairs]
+    if all(0.0 <= s <= 1.0 for s in scores):
+        normalized = [ScoredDoc(doc=d, score=s) for d, s in pairs]
+    elif all(-1.0 <= s <= 1.0 for s in scores):
+        normalized = [ScoredDoc(doc=d, score=(s + 1.0) / 2.0) for d, s in pairs]
+    else:
+        ranked = sorted(pairs, key=lambda t: t[1], reverse=True)
+        n = len(ranked)
+        if n == 1:
+            normalized = [ScoredDoc(doc=ranked[0][0], score=1.0)]
+        else:
+            normalized = [
+                ScoredDoc(doc=d, score=(n - i - 1) / (n - 1)) for i, (d, _) in enumerate(ranked)
+            ]
+    return [sd for sd in normalized if sd.score >= threshold]
 
 
 def quote_snippet(doc: Document, max_chars: int = 180) -> str:

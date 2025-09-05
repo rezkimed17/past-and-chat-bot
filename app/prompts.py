@@ -22,10 +22,8 @@ def qa_prompt() -> ChatPromptTemplate:
             (
                 "human",
                 "Notes:\n{context}\n\n"
-                "Chat history:\n{history}\n\n"
                 "Question: {question}\n\n"
                 "Respond concisely. Quote a relevant sentence and add the source marker.",
             ),
         ]
     )
-

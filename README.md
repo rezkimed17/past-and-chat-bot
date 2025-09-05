@@ -25,8 +25,9 @@ Quick Start
    - If needed, select Python explicitly: `make install PY=python3.11`
 
 3) Index notes
-   - Paste text: `python app/ingest.py --stdin --title "Troubleshooting Guide" < samples/troubleshooting_guide.md`
-   - Or from file: `python app/ingest.py --file samples/troubleshooting_guide.md --title "Troubleshooting Guide"`
+   - From file (sample): `make ingest-sample`
+   - Generic file: `make ingest FILE=samples/troubleshooting_guide.md TITLE="Troubleshooting Guide"`
+   - Paste text: `.venv/bin/python app/ingest.py --stdin --title "Troubleshooting Guide" < samples/troubleshooting_guide.md`
 
 4) CLI chat
    - `make run`
@@ -65,6 +66,8 @@ Troubleshooting
 Commands
 - Build/Install: `make install`
 - Tests: `make test`
+- Ingest sample: `make ingest-sample`
+- Ingest file: `make ingest FILE=path TITLE="Title"`
 - CLI: `make run`
 - UI: `make ui`
 - Clean index: `make clean`

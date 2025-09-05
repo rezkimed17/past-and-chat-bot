@@ -4,10 +4,10 @@ import os
 import streamlit as st
 from dotenv import load_dotenv
 
-from .ingest import _split_into_docs
-from .memory import build_memory
-from .chains import answer_with_guard
-from .vectorstore import build_faiss_from_docs, load_local_faiss, save_local_faiss
+from app.ingest import _split_into_docs
+from app.memory import build_memory
+from app.chains import answer_with_guard
+from app.vectorstore import build_faiss_from_docs, load_local_faiss, save_local_faiss
 
 
 def ensure_api_key():
@@ -66,7 +66,7 @@ def main():
 
     index_dir = os.getenv("INDEX_DIR", "index/faiss_index")
     top_k = int(os.getenv("TOP_K", "4"))
-    threshold = float(os.getenv("RELEVANCE_THRESHOLD", "0.6"))
+    threshold = float(os.getenv("RELEVANCE_THRESHOLD", "0.4"))
 
     sidebar_index_controls(index_dir)
 

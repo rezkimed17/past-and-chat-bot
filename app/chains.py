@@ -33,6 +33,29 @@ def build_conv_chain(retriever, memory) -> ConversationalRetrievalChain:
     return chain
 
 
+def _condense_question(memory, question: str) -> str:
+    """Rewrite follow-ups into standalone questions using chat history."""
+    try:
+        vars = memory.load_memory_variables({})
+        msgs = vars.get("chat_history", [])
+        history_lines: List[str] = []
+        for m in msgs:
+            name = getattr(m, "type", "") or m.__class__.__name__
+            role = "User" if "Human" in name else ("Assistant" if "AI" in name else "Message")
+            content = getattr(m, "content", str(m))
+            history_lines.append(f"{role}: {content}")
+        history = "\n".join(history_lines[-8:])  # last few turns
+        prompt = (
+            "Rewrite the user's question to be a self-contained query given this chat history.\n"
+            f"Chat History:\n{history}\n\nQuestion: {question}\n\nStandalone:"
+        )
+        llm = _llm()
+        resp = llm.invoke(prompt)
+        text = getattr(resp, "content", "").strip()
+        return text or question
+    except Exception:
+        return question
+
 def answer_with_guard(
     question: str,
     retriever,
@@ -45,8 +68,9 @@ def answer_with_guard(
     Returns dict with keys: answer, citation, quote.
     """
     # Pull scored docs directly for guard
-    docs_scores: List[Tuple[Document, float]] = retriever.vectorstore.similarity_search_with_relevance_scores(
-        query=question, k=top_k
+    effective_q = _condense_question(memory, question)
+    docs_scores: List[Tuple[Document, float]] = retriever.vectorstore.similarity_search_with_score(
+        query=effective_q, k=top_k
     )
     supported = best_supported(docs_scores, threshold=threshold)
 
